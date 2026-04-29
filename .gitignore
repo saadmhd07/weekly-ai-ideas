@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets/config
+.env
+.env.*
+!.env.example
+config.json
+
+# Local data and generated outputs
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+output/*.md
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/
+
+# Generated previews
+output/*.html
+.codex
