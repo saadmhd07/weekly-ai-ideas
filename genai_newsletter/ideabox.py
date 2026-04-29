@@ -14,24 +14,24 @@ from .models import Signal
 from .pipeline import cluster_signals
 
 DEFAULT_PROFILE = {
-    "goal": "Trouver 5 idées de side projects GenAI buildables, fun, éventuellement vendables.",
+    "goal": "Find 5 buildable, fun, potentially sellable GenAI side-project ideas.",
     "inspiration": "Ambiance GitHub Trending, Product Hunt, indie hackers, devtools, micro-SaaS.",
     "preferred_ideas": [
-        "outil que je peux coder seul ou à deux",
-        "MVP visible en 2 à 10 jours",
+        "tool I can build alone or with one other person",
+        "visible MVP in 2 to 10 days",
         "repo open-source possible avec README sexy",
         "peut commencer gratuit puis devenir payant",
-        "utile à des devs, freelances, PM, petites équipes ou ops",
-        "pas trop enterprise, pas trop spécifique à une stack interne",
+        "useful for developers, freelancers, PMs, small teams, or ops",
+        "not too enterprise, not too specific to an internal stack",
     ],
     "avoid": [
         "gros produit compliance enterprise",
-        "idées R&D trop académiques",
-        "wrappers ChatGPT évidents",
-        "idées nécessitant une équipe sales dès le départ",
-        "idées tellement verticales qu'elles ne parlent à presque personne",
+        "overly academic R&D ideas",
+        "obvious ChatGPT wrappers",
+        "ideas requiring a sales team from day one",
+        "ideas so vertical they appeal to almost nobody",
     ],
-    "tone": "Synthétique, direct, sélectif, orienté action.",
+    "tone": "Concise, direct, selective, action-oriented.",
 }
 
 IDEABOX_SCHEMA: dict[str, Any] = {
@@ -118,7 +118,7 @@ def build_ideabox(
 
     selected = select_signals(signals, max_signals=max_signals)
     if not selected:
-        raise RuntimeError("Aucun signal exploitable. Lance d'abord la collecte ou élargis la fenêtre --days.")
+        raise RuntimeError("No usable signal found. Run collection first or broaden the --days window.")
 
     settings = IdeaBoxSettings(
         model=model or os.getenv("OPENAI_MODEL", "gpt-5.2"),
@@ -132,13 +132,13 @@ def build_ideabox(
     estimated_input_tokens = estimate_tokens(build_instructions(settings.profile) + input_text)
     print(
         "ideabox: appel OpenAI "
-        f"mode={'wide' if settings.wide else 'focused'}, model={settings.model}, signaux={len(selected)}, "
+        f"mode={'wide' if settings.wide else 'focused'}, model={settings.model}, signals={len(selected)}, "
         f"input≈{estimated_input_tokens} tokens, max_output={settings.max_output_tokens}, "
         f"timeout={settings.timeout}s",
         flush=True,
     )
     payload, usage = call_openai_ideabox(input_text, settings)
-    print(f"ideabox: réponse OpenAI reçue, usage={format_usage(usage)}", flush=True)
+    print(f"ideabox: OpenAI response received, usage={format_usage(usage)}", flush=True)
     markdown = render_ideabox(payload, selected, settings.model, usage)
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"ideabox-{datetime.now().strftime('%Y-%m-%d-%H%M%S')}.md"
@@ -184,13 +184,13 @@ def call_openai_ideabox(input_text: str, settings: IdeaBoxSettings) -> tuple[dic
         detail = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"OpenAI API error {exc.code}: {detail}") from exc
     except (TimeoutError, socket.timeout) as exc:
-        raise RuntimeError(f"OpenAI timeout après {settings.timeout}s. Augmente --timeout ou réduis --max-signals.") from exc
+        raise RuntimeError(f"OpenAI timeout after {settings.timeout}s. Increase --timeout or reduce --max-signals.") from exc
     except urllib.error.URLError as exc:
-        raise RuntimeError(f"Erreur réseau OpenAI: {exc}") from exc
+        raise RuntimeError(f"OpenAI network error: {exc}") from exc
 
     text = extract_response_text(response_payload)
     if not text:
-        raise RuntimeError(f"Réponse OpenAI vide ou non textuelle. usage={response_payload.get('usage', {})}")
+        raise RuntimeError(f"Empty or non-text OpenAI response. usage={response_payload.get('usage', {})}")
     try:
         return json.loads(text), response_payload.get("usage", {})
     except json.JSONDecodeError as exc:
@@ -199,9 +199,9 @@ def call_openai_ideabox(input_text: str, settings: IdeaBoxSettings) -> tuple[dic
         preview_path.parent.mkdir(parents=True, exist_ok=True)
         preview_path.write_text(text, encoding="utf-8")
         raise RuntimeError(
-            "Réponse OpenAI JSON incomplète ou invalide. "
-            f"usage={format_usage(usage)}. Réponse partielle sauvegardée dans {preview_path}. "
-            "Relance avec --max-output-tokens 6000."
+            "Incomplete or invalid OpenAI JSON response. "
+            f"usage={format_usage(usage)}. Partial response saved to {preview_path}. "
+            "Retry with --max-output-tokens 6000."
         ) from exc
 
 
@@ -222,9 +222,9 @@ def build_instructions(profile: dict[str, Any]) -> str:
 def build_wide_input(signals: list[Signal]) -> str:
     cards = build_inspiration_cards(signals)
     return (
-        "Mode WIDE: cartes d'inspiration compressées depuis beaucoup de signaux GenAI. "
-        "Génère une newsletter courte: TL;DR, 1 projet à shipper cette semaine, 5 idées maximum, 2 idées à éviter. "
-        "Utilise les cartes comme moodboard pour produire des idées larges, simples et actionnables. Cartes: "
+        "WIDE mode: inspiration cards compressed from many GenAI signals. "
+        "Generate a short newsletter: TL;DR, 1 project to ship this week, 5 ideas maximum, 2 ideas to avoid. "
+        "Use the cards as a moodboard to produce broad, simple, actionable ideas. Cards: "
         + json.dumps(cards, ensure_ascii=False)
     )
 
@@ -248,16 +248,16 @@ def build_inspiration_cards(signals: list[Signal]) -> list[dict[str, Any]]:
 
 def summarize_cluster_spark(topic: str) -> str:
     if topic == "AI agents":
-        return "Agents autour de CLI, navigateur, workflows et automatisation."
+        return "Agents around CLI, browser, workflows, and automation."
     if topic == "RAG & knowledge bases":
-        return "Contexte fiable, recherche personnelle, docs vivantes et ingestion simple."
+        return "Reliable context, personal search, living docs, and simple ingestion."
     if topic == "AI coding":
-        return "Petits devtools autour de review, migration, docs, tests, onboarding."
+        return "Small devtools around review, migration, docs, tests, and onboarding."
     if topic == "Local LLMs":
-        return "Privacy, coût, offline, apps desktop et wrappers Ollama."
+        return "Privacy, cost, offline, desktop apps, and Ollama wrappers."
     if topic == "Multimodal AI":
-        return "PDF, image, audio et vidéo transformés en outils de productivité."
-    return "Espace de petits outils GenAI à explorer."
+        return "PDF, image, audio, and video turned into productivity tools."
+    return "Space of small GenAI tools to explore."
 
 
 def project_angles_for_topic(topic: str) -> list[str]:
@@ -283,7 +283,7 @@ def build_input(signals: list[Signal]) -> str:
             "idea_hint": signal.idea_hint,
         })
     return (
-        "Voici des signaux GenAI. Génère une newsletter courte avec exactement 5 idées de side projects. Signaux: "
+        "Here are GenAI signals. Generate a short newsletter with exactly 5 side-project ideas. Signals: "
         + json.dumps(compact, ensure_ascii=False)
     )
 

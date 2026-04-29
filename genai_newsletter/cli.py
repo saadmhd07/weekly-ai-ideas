@@ -52,10 +52,10 @@ def collect(config: AppConfig, limit: int) -> CollectResult:
                 signals = enrich_signals(signals, config.keywords, config.source_weights)
                 fetched += len(signals)
                 inserted += store.upsert_many(signals)
-                print(f"{collector.name}: {len(signals)} signaux, {inserted} nouveaux cumulés")
+                print(f"{collector.name}: {len(signals)} signals, {inserted} new cumulative")
             except Exception as exc:
                 errors.append(f"{collector.name}: {exc}")
-                print(f"{collector.name}: erreur - {exc}", file=sys.stderr)
+                print(f"{collector.name}: error - {exc}", file=sys.stderr)
     finally:
         store.close()
     return CollectResult(fetched=fetched, inserted=inserted, errors=errors)
@@ -71,57 +71,57 @@ def newsletter(config: AppConfig, days: int, use_openai: bool) -> str:
     ideas = generate_ideas(clusters, use_openai=use_openai)
     markdown = render_markdown(clusters, ideas)
     path = write_newsletter(markdown, config.output_dir)
-    print(f"Newsletter écrite: {path}")
+    print(f"Newsletter written: {path}")
     return str(path)
 
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
-    parser = argparse.ArgumentParser(description="Collecte des tendances GenAI et génère une newsletter d'idées.")
-    parser.add_argument("--config", help="Chemin vers config.json")
+    parser = argparse.ArgumentParser(description="Collect GenAI trends and generate an ideas newsletter.")
+    parser.add_argument("--config", help="Path to config.json")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    collect_parser = subparsers.add_parser("collect", help="Collecter et stocker les signaux")
-    collect_parser.add_argument("--limit", type=int, default=30, help="Nombre max d'items par source")
+    collect_parser = subparsers.add_parser("collect", help="Collect and store signals")
+    collect_parser.add_argument("--limit", type=int, default=30, help="Maximum items per source")
 
-    newsletter_parser = subparsers.add_parser("newsletter", help="Générer une newsletter depuis la base locale")
-    newsletter_parser.add_argument("--days", type=int, default=7, help="Fenêtre de signaux récents")
-    newsletter_parser.add_argument("--use-openai", action="store_true", help="Utiliser OpenAI si OPENAI_API_KEY est défini")
+    newsletter_parser = subparsers.add_parser("newsletter", help="Generate a newsletter from the local database")
+    newsletter_parser.add_argument("--days", type=int, default=7, help="Recent signal window")
+    newsletter_parser.add_argument("--use-openai", action="store_true", help="Use OpenAI if OPENAI_API_KEY is set")
 
-    ideabox_parser = subparsers.add_parser("ideabox", help="Générer des idées de side projects GenAI avec OpenAI")
-    ideabox_parser.add_argument("--days", type=int, default=7, help="Fenêtre de signaux récents")
-    ideabox_parser.add_argument("--max-signals", type=int, default=120, help="Nombre max de signaux d'inspiration envoyés au LLM")
-    ideabox_parser.add_argument("--model", help="Modèle OpenAI à utiliser, par défaut OPENAI_MODEL ou gpt-5.2")
-    ideabox_parser.add_argument("--timeout", type=int, default=360, help="Timeout OpenAI en secondes")
-    ideabox_parser.add_argument("--max-output-tokens", type=int, default=4000, help="Budget max de tokens de sortie OpenAI")
-    ideabox_parser.add_argument("--focused", action="store_true", help="Désactive le mode wide et envoie des signaux plus bruts")
+    ideabox_parser = subparsers.add_parser("ideabox", help="Generate GenAI side-project ideas with OpenAI")
+    ideabox_parser.add_argument("--days", type=int, default=7, help="Recent signal window")
+    ideabox_parser.add_argument("--max-signals", type=int, default=120, help="Maximum inspiration signals sent to the LLM")
+    ideabox_parser.add_argument("--model", help="OpenAI model to use, defaults to OPENAI_MODEL or gpt-5.2")
+    ideabox_parser.add_argument("--timeout", type=int, default=360, help="OpenAI timeout in seconds")
+    ideabox_parser.add_argument("--max-output-tokens", type=int, default=4000, help="Maximum OpenAI output token budget")
+    ideabox_parser.add_argument("--focused", action="store_true", help="Disable wide mode and send rawer signals")
 
-    enrich_parser = subparsers.add_parser("enrich", help="Recalcule les notes éditoriales des signaux stockés")
-    enrich_parser.add_argument("--days", type=int, default=30, help="Fenêtre de signaux à ré-enrichir")
+    enrich_parser = subparsers.add_parser("enrich", help="Recompute editorial notes for stored signals")
+    enrich_parser.add_argument("--days", type=int, default=30, help="Signal window to re-enrich")
 
-    send_parser = subparsers.add_parser("send", help="Envoyer par email un fichier Markdown généré")
-    send_parser.add_argument("--file", help="Fichier Markdown à envoyer. Par défaut: dernier output/ideabox-*.md")
-    send_parser.add_argument("--subject", help="Sujet de l'email")
+    send_parser = subparsers.add_parser("send", help="Email a generated Markdown file")
+    send_parser.add_argument("--file", help="Markdown file to send. Defaults to the latest output/ideabox-*.md")
+    send_parser.add_argument("--subject", help="Email subject")
 
-    weekly_parser = subparsers.add_parser("weekly", help="Collecter, générer ideabox, puis envoyer par email")
-    weekly_parser.add_argument("--limit", type=int, default=80, help="Nombre max d'items par source")
-    weekly_parser.add_argument("--days", type=int, default=7, help="Fenêtre de signaux récents")
-    weekly_parser.add_argument("--max-signals", type=int, default=120, help="Nombre max de signaux d'inspiration")
-    weekly_parser.add_argument("--timeout", type=int, default=360, help="Timeout OpenAI en secondes")
-    weekly_parser.add_argument("--max-output-tokens", type=int, default=4000, help="Budget max de tokens de sortie OpenAI")
-    weekly_parser.add_argument("--subject", help="Sujet de l'email")
+    weekly_parser = subparsers.add_parser("weekly", help="Collect, generate ideabox, then email it")
+    weekly_parser.add_argument("--limit", type=int, default=80, help="Maximum items per source")
+    weekly_parser.add_argument("--days", type=int, default=7, help="Recent signal window")
+    weekly_parser.add_argument("--max-signals", type=int, default=120, help="Maximum inspiration signals")
+    weekly_parser.add_argument("--timeout", type=int, default=360, help="OpenAI timeout in seconds")
+    weekly_parser.add_argument("--max-output-tokens", type=int, default=4000, help="Maximum OpenAI output token budget")
+    weekly_parser.add_argument("--subject", help="Email subject")
 
-    run_parser = subparsers.add_parser("run", help="Collecter puis générer la newsletter")
-    run_parser.add_argument("--limit", type=int, default=30, help="Nombre max d'items par source")
-    run_parser.add_argument("--days", type=int, default=7, help="Fenêtre de signaux récents")
-    run_parser.add_argument("--use-openai", action="store_true", help="Utiliser OpenAI si OPENAI_API_KEY est défini")
+    run_parser = subparsers.add_parser("run", help="Collect and generate the newsletter")
+    run_parser.add_argument("--limit", type=int, default=30, help="Maximum items per source")
+    run_parser.add_argument("--days", type=int, default=7, help="Recent signal window")
+    run_parser.add_argument("--use-openai", action="store_true", help="Use OpenAI if OPENAI_API_KEY is set")
 
     args = parser.parse_args(argv)
     config = load_config(args.config)
 
     if args.command == "collect":
         result = collect(config, args.limit)
-        print(f"Collecte terminée: {result.fetched} récupérés, {result.inserted} nouveaux, {len(result.errors)} erreurs")
+        print(f"Collection complete: {result.fetched} fetched, {result.inserted} new, {len(result.errors)} errors")
         return 0 if result.fetched else 1
     if args.command == "newsletter":
         newsletter(config, args.days, args.use_openai)
@@ -146,8 +146,8 @@ def main(argv: list[str] | None = None) -> int:
         except RuntimeError as exc:
             print(f"ideabox: {exc}", file=sys.stderr)
             return 1
-        print(f"Boîte à idées écrite: {path}")
-        print(f"Résumé: {result.selected_count} signaux traités, input estimé ≈ {result.estimated_input_tokens} tokens")
+        print(f"Idea box written: {path}")
+        print(f"Summary: {result.selected_count} signals processed, estimated input ≈ {result.estimated_input_tokens} tokens")
         return 0
     if args.command == "enrich":
         store = SignalStore(config.database_path)
@@ -156,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
             updated = store.upsert_many(signals)
         finally:
             store.close()
-        print(f"Enrichissement terminé: {len(signals)} signaux recalculés, {updated} lignes mises à jour")
+        print(f"Enrichment complete: {len(signals)} signals recalculated, {updated} rows updated")
         return 0
     if args.command == "send":
         try:
@@ -165,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
         except RuntimeError as exc:
             print(f"send: {exc}", file=sys.stderr)
             return 1
-        print(f"Email envoyé: {path}")
+        print(f"Email sent: {path}")
         return 0
     if args.command == "weekly":
         result = collect(config, args.limit)
@@ -187,12 +187,12 @@ def main(argv: list[str] | None = None) -> int:
         except RuntimeError as exc:
             print(f"weekly: {exc}", file=sys.stderr)
             return 1
-        print(f"Weekly terminé: {result.fetched} signaux récupérés, email envoyé: {ideabox_result.path}")
+        print(f"Weekly complete: {result.fetched} signals fetched, email sent: {ideabox_result.path}")
         return 0
     if args.command == "run":
         result = collect(config, args.limit)
         newsletter(config, args.days, args.use_openai)
-        print(f"Run terminé: {result.fetched} récupérés, {result.inserted} nouveaux, {len(result.errors)} erreurs")
+        print(f"Run complete: {result.fetched} fetched, {result.inserted} new, {len(result.errors)} errors")
         return 0 if result.fetched else 1
     return 2
 

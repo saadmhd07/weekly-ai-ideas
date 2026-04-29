@@ -24,7 +24,7 @@ def load_email_config() -> EmailConfig:
     required = ["SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "EMAIL_FROM", "EMAIL_TO"]
     missing = [key for key in required if not os.getenv(key)]
     if missing:
-        raise RuntimeError(f"Configuration email manquante dans .env: {', '.join(missing)}")
+        raise RuntimeError(f"Missing email configuration in .env: {', '.join(missing)}")
     return EmailConfig(
         host=os.environ["SMTP_HOST"],
         port=int(os.getenv("SMTP_PORT", "587")),
@@ -56,7 +56,7 @@ def send_markdown_email(path: Path, subject: str | None = None) -> None:
 def latest_output(pattern: str = "ideabox-*.md", output_dir: Path = Path("output")) -> Path:
     files = sorted(output_dir.glob(pattern), key=lambda item: item.stat().st_mtime, reverse=True)
     if not files:
-        raise RuntimeError(f"Aucun fichier trouvé dans {output_dir} avec le pattern {pattern}")
+        raise RuntimeError(f"No file found in {output_dir} with pattern {pattern}")
     return files[0]
 
 

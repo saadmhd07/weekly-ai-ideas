@@ -138,42 +138,42 @@ def apply_editorial_assessment(signal: Signal) -> None:
     if signal.source == "hackernews" and signal.title.lower().startswith("ask hn:") and concrete_hits < 2:
         signal.keep = False
         signal.quality = "low"
-        signal.value_note = "Discussion HN abstraite: utile comme contexte, faible comme déclencheur direct d'idée."
-        signal.idea_hint = "À garder seulement si plusieurs autres sources confirment le même angle."
+        signal.value_note = "Abstract HN discussion: useful as context, weak as a direct idea trigger."
+        signal.idea_hint = "Keep only if several other sources confirm the same angle."
         signal.score = round(signal.score * 0.45, 2)
         return
 
     if concrete_hits >= 3 or source_bonus:
         signal.keep = True
         signal.quality = "high" if concrete_hits >= 4 else "medium"
-        signal.value_note = "Signal concret: peut alimenter directement une hypothèse produit ou R&D."
+        signal.value_note = "Concrete signal: can directly feed a product or R&D hypothesis."
         signal.idea_hint = build_idea_hint(signal)
         return
 
     if abstract_hits > concrete_hits:
         signal.keep = False
         signal.quality = "low"
-        signal.value_note = "Signal trop général: intéressant pour la culture, peu exploitable seul."
-        signal.idea_hint = "Chercher un repo, un papier ou un cas d'usage concret avant de l'envoyer au LLM."
+        signal.value_note = "Signal too general: interesting background, weak on its own."
+        signal.idea_hint = "Find a repo, paper, or concrete use case before sending it to the LLM."
         signal.score = round(signal.score * 0.65, 2)
         return
 
     signal.keep = True
     signal.quality = "medium"
-    signal.value_note = "Signal potentiellement utile, à interpréter dans un cluster plutôt que seul."
+    signal.value_note = "Potentially useful signal, better interpreted in a cluster than alone."
     signal.idea_hint = build_idea_hint(signal)
 
 
 def build_idea_hint(signal: Signal) -> str:
     topic = infer_topic(signal)
     if topic == "AI agents":
-        return "Explorer un prototype d'agent borné à un workflow métier mesurable."
+        return "Explore an agent prototype constrained to a measurable workflow."
     if topic == "RAG & knowledge bases":
-        return "Tester une base de connaissances verticale avec évaluation qualité intégrée."
+        return "Test a vertical knowledge base with integrated quality evaluation."
     if topic == "AI coding":
-        return "Chercher un outil dev qui réduit une friction très précise du cycle delivery."
+        return "Look for a devtool that removes a very specific delivery-cycle friction."
     if topic == "Local LLMs":
-        return "Tester un cas privacy/offline où le local change vraiment l'adoption."
+        return "Test a privacy/offline case where local execution materially changes adoption."
     if topic == "Multimodal AI":
-        return "Transformer documents, audio ou vidéo en actions vérifiables, pas juste en résumés."
-    return f"Chercher une idée R&D concrète autour de {topic}."
+        return "Turn documents, audio, or video into verifiable actions, not just summaries."
+    return f"Look for a concrete R&D idea around {topic}."

@@ -1,18 +1,18 @@
 # GenAI Newsletter / Idea Box
 
-Collecte des signaux GenAI publics, les compresse en inspirations, puis génère une newsletter courte de side projects buildables avec OpenAI. Le workflow peut aussi envoyer le résultat par email une fois par semaine.
+Collects public GenAI signals, compresses them into inspiration cards, and generates a short weekly side-project newsletter with OpenAI. The workflow can also email the result once per week.
 
-## Ce Que Ça Produit
+## Output
 
-`ideabox` génère un Markdown court dans `output/ideabox-*.md` avec:
+`ideabox` writes a short Markdown file to `output/ideabox-*.md` with:
 
-- TL;DR en 3-4 bullets
-- 1 idée à shipper cette semaine
-- 5 idées maximum
-- 2 idées à éviter
-- quelques signaux clés
+- 3-4 TL;DR bullets
+- 1 idea to ship this week
+- 5 ideas maximum
+- 2 ideas to avoid
+- a few key source signals
 
-Chaque idée contient: catégorie, pitch, pourquoi, MVP, distribution, monétisation et score `/10`.
+Each idea includes: category, pitch, why it matters, MVP, distribution, monetization, and a `/10` score.
 
 ## Setup
 
@@ -20,14 +20,14 @@ Chaque idée contient: catégorie, pitch, pourquoi, MVP, distribution, monétisa
 cp .env.example .env
 ```
 
-Renseigne au minimum:
+At minimum, set:
 
 ```bash
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-5.2
 ```
 
-Pour l'email, ajoute aussi:
+For email delivery, also set:
 
 ```bash
 SMTP_HOST=smtp.example.com
@@ -39,77 +39,77 @@ EMAIL_FROM=from@example.com
 EMAIL_TO=to@example.com
 ```
 
-Le fichier `.env` est chargé automatiquement et n'est pas versionné.
+`.env` is loaded automatically and is not committed.
 
-## Commandes Principales
+## Main Commands
 
-Collecter des signaux:
+Collect signals:
 
 ```bash
 python3 -m genai_newsletter.cli collect --limit 80
 ```
 
-Générer la boîte à idées courte:
+Generate the short idea box:
 
 ```bash
 python3 -m genai_newsletter.cli ideabox --days 7
 ```
 
-Envoyer le dernier `ideabox` par email:
+Email the latest `ideabox`:
 
 ```bash
 python3 -m genai_newsletter.cli send
 ```
 
-Workflow complet hebdo: collecter, générer, envoyer:
+Full weekly workflow: collect, generate, email:
 
 ```bash
 python3 -m genai_newsletter.cli weekly
 ```
 
-## Mode Gratuit Sans OpenAI
+## Free Mode Without OpenAI
 
-Une newsletter heuristique existe sans LLM:
+A heuristic newsletter mode exists without an LLM:
 
 ```bash
 python3 -m genai_newsletter.cli run --limit 30 --days 7
 ```
 
-Ce mode utilise seulement des sources publiques, mais la qualité des idées est nettement inférieure au mode `ideabox`.
+This uses only public sources, but idea quality is much lower than `ideabox`.
 
-## Sources Incluses
+## Included Sources
 
 - Hacker News Algolia
 - arXiv API
 - GitHub Search API
 - Reddit JSON endpoints
-- RSS configurable dans `config.example.json`
+- RSS feeds configured in `config.example.json`
 
-## Configuration Avancée
+## Advanced Configuration
 
-Copie la config d'exemple si tu veux modifier les sources, mots-clés ou poids:
+Copy the example config if you want to change sources, keywords, or weights:
 
 ```bash
 cp config.example.json config.json
 ```
 
-Les données locales sont stockées dans:
+Local data is stored in:
 
 ```text
 data/newsletter.db
 ```
 
-Les sorties sont écrites dans:
+Generated files are written to:
 
 ```text
 output/
 ```
 
-## Mode Wide
+## Wide Mode
 
-Le mode wide est activé par défaut. Il compresse beaucoup de signaux en cartes d'inspiration diversifiées avant d'appeler OpenAI.
+Wide mode is enabled by default. It compresses many signals into diverse inspiration cards before calling OpenAI.
 
-Defaults actuels:
+Current defaults:
 
 ```text
 --max-signals 120
@@ -117,7 +117,7 @@ Defaults actuels:
 --timeout 360
 ```
 
-Désactiver wide et envoyer des signaux plus bruts:
+Disable wide mode and send rawer signals:
 
 ```bash
 python3 -m genai_newsletter.cli ideabox --focused
@@ -125,61 +125,61 @@ python3 -m genai_newsletter.cli ideabox --focused
 
 ## Email
 
-Envoyer un fichier précis:
+Send a specific file:
 
 ```bash
 python3 -m genai_newsletter.cli send --file output/ideabox-YYYY-MM-DD-HHMMSS.md
 ```
 
-Le mail est envoyé en texte brut + HTML stylé.
+Emails are sent as plain text plus styled HTML.
 
-## Automatisation Hebdomadaire
+## Weekly Automation
 
-Sur Linux:
+On Linux:
 
 ```bash
 crontab -e
 ```
 
-Exemple tous les lundis à 8h:
+Example: every Monday at 08:00:
 
 ```cron
 0 8 * * 1 cd /home/saad/projects/newsletter && /usr/bin/python3 -m genai_newsletter.cli weekly >> /home/saad/projects/newsletter/output/weekly.log 2>&1
 ```
 
-Pas besoin de déployer si ta machine est allumée. Si tu veux que ça tourne même PC éteint, utilise un VPS, GitHub Actions avec secrets, un NAS ou une machine toujours allumée.
+No deployment is required if your machine is on. If you want it to run while your computer is off, use a VPS, GitHub Actions with secrets, a NAS, or another always-on machine.
 
-## Commandes Disponibles
+## Available Commands
 
 ```bash
 python3 -m genai_newsletter.cli --help
 ```
 
-Commandes:
+Commands:
 
-- `collect`: collecte et stocke les signaux
-- `newsletter`: génère l'ancienne newsletter heuristique depuis la DB
-- `ideabox`: génère la boîte à idées courte avec OpenAI
-- `enrich`: recalcule les notes éditoriales des signaux stockés
-- `send`: envoie un Markdown par email
-- `weekly`: collecte, génère et envoie par email
-- `run`: collecte puis génère la newsletter heuristique
+- `collect`: collect and store signals
+- `newsletter`: generate the old heuristic newsletter from the local DB
+- `ideabox`: generate the short OpenAI idea box
+- `enrich`: recompute editorial notes for stored signals
+- `send`: email a Markdown file
+- `weekly`: collect, generate, and email
+- `run`: collect and generate the heuristic newsletter
 
-## Déploiement Gratuit Avec GitHub Actions
+## Free Deployment With GitHub Actions
 
-Le repo contient un workflow prêt à l'emploi:
+The repository includes a ready-to-use workflow:
 
 ```text
 .github/workflows/weekly-newsletter.yml
 ```
 
-Il lance `python -m genai_newsletter.cli weekly --limit 80 --days 7` tous les lundis à 08:00 UTC et peut aussi être déclenché manuellement depuis l'onglet GitHub Actions.
+It runs `python -m genai_newsletter.cli weekly --limit 80 --days 7` every Monday at 08:00 UTC and can also be triggered manually from the GitHub Actions tab.
 
-À configurer dans GitHub:
+Configure this in GitHub:
 
 Repository `Settings` -> `Secrets and variables` -> `Actions`.
 
-Secrets nécessaires:
+Required secrets:
 
 ```text
 OPENAI_API_KEY
@@ -190,7 +190,7 @@ EMAIL_FROM
 EMAIL_TO
 ```
 
-Variables optionnelles:
+Optional variables:
 
 ```text
 OPENAI_MODEL=gpt-5.2
@@ -198,4 +198,4 @@ SMTP_PORT=587
 SMTP_TLS=true
 ```
 
-Le runner GitHub est éphémère: la base SQLite créée pendant l'exécution n'est pas conservée. Pour ce workflow hebdomadaire, ce n'est pas bloquant parce que la commande collecte, génère et envoie dans le même run.
+The GitHub runner is ephemeral: the SQLite database created during a run is not persisted. For this weekly workflow, that is fine because the command collects, generates, and emails within the same run.

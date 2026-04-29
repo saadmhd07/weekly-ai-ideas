@@ -35,26 +35,26 @@ def heuristic_ideas(cluster: Cluster) -> list[Idea]:
     keyword = cluster.keywords[0] if cluster.keywords else topic.lower()
     return [
         Idea(
-            title=f"Radar opérationnel pour {topic}",
-            problem=f"Les équipes voient passer des signaux autour de {keyword}, mais n'arrivent pas à décider quoi tester concrètement.",
-            audience="Fondateurs SaaS, équipes innovation, product managers B2B.",
-            why_now=f"Le cluster agrège {len(cluster.signals)} signaux récents avec un score de {cluster.score}.",
-            mvp="Collecter 5 sources, résumer les changements, envoyer un digest Slack/email avec 3 recommandations actionnables.",
-            difficulty="Moyenne",
-            business_potential="Bon si le périmètre cible un métier précis avec budget récurrent.",
-            risks="Risque de bruit si le scoring reste trop générique.",
-            differentiator="Passer d'une veille générique à des recommandations priorisées par contexte métier.",
+            title=f"Operational radar for {topic}",
+            problem=f"Teams see many signals around {keyword}, but struggle to decide what to test concretely.",
+            audience="SaaS founders, innovation teams, and B2B product managers.",
+            why_now=f"The cluster aggregates {len(cluster.signals)} recent signals with a score of {cluster.score}.",
+            mvp="Collect 5 sources, summarize changes, and send a Slack/email digest with 3 actionable recommendations.",
+            difficulty="Medium",
+            business_potential="Good if scoped to a specific business function with recurring budget.",
+            risks="Noise risk if scoring remains too generic.",
+            differentiator="Move from generic monitoring to recommendations prioritized by business context.",
         ),
         Idea(
-            title=f"Assistant métier spécialisé {topic}",
-            problem="Les outils généralistes demandent trop de paramétrage et produisent des réponses peu adaptées au workflow réel.",
-            audience="PME et équipes ops qui veulent automatiser un processus récurrent.",
-            why_now="Les signaux montrent une maturité technique suffisante pour verticaliser le cas d'usage.",
-            mvp="Choisir un workflow unique, connecter les documents utiles, générer une sortie vérifiable avec validation humaine.",
-            difficulty="Moyenne à élevée",
-            business_potential="Élevé si le gain de temps est mesurable en heures par semaine.",
-            risks="Dépendance aux données internes et besoin de garde-fous qualité.",
-            differentiator="Un périmètre étroit, mesurable, avec intégration dans les outils existants.",
+            title=f"Specialized {topic} workflow assistant",
+            problem="Generic tools require too much setup and produce answers that are poorly adapted to real workflows.",
+            audience="SMBs and ops teams that want to automate a recurring process.",
+            why_now="Signals show enough technical maturity to verticalize the use case.",
+            mvp="Pick one workflow, connect the useful documents, and generate a verifiable output with human validation.",
+            difficulty="Medium to high",
+            business_potential="High if time saved can be measured in hours per week.",
+            risks="Depends on internal data access and quality guardrails.",
+            differentiator="A narrow, measurable scope integrated into existing tools.",
         ),
     ]
 
@@ -99,9 +99,9 @@ def _build_prompt(clusters: list[Cluster]) -> str:
             ],
         })
     return (
-        "Tu es un analyste produit GenAI. Génère exactement 2 idées par topic. "
-        "Réponds en JSON: {topic: [{title, problem, audience, why_now, mvp, difficulty, "
-        "business_potential, risks, differentiator}]}. Signaux: " + json.dumps(compact, ensure_ascii=False)
+        "You are a GenAI product analyst. Generate exactly 2 ideas per topic. "
+        "Respond as JSON: {topic: [{title, problem, audience, why_now, mvp, difficulty, "
+        "business_potential, risks, differentiator}]}. Signals: " + json.dumps(compact, ensure_ascii=False)
     )
 
 

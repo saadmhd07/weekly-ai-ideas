@@ -10,11 +10,11 @@ from .models import Cluster
 def render_markdown(clusters: list[Cluster], ideas_by_topic: dict[str, list[Idea]]) -> str:
     today = datetime.now().strftime("%Y-%m-%d")
     lines: list[str] = [
-        f"# Veille GenAI - {today}",
+        f"# GenAI Watch - {today}",
         "",
-        "Synthèse automatique des signaux récents et des idées à explorer.",
+        "Automatic summary of recent signals and ideas to explore.",
         "",
-        "## Tendances fortes",
+        "## Strong Trends",
         "",
     ]
 
@@ -23,32 +23,32 @@ def render_markdown(clusters: list[Cluster], ideas_by_topic: dict[str, list[Idea
         lines.extend([
             f"### {idx}. {cluster.topic}",
             "",
-            f"Score tendance: **{cluster.score}**",
+            f"Trend score: **{cluster.score}**",
             f"Sources: {', '.join(sources)}",
-            f"Mots-clés: {', '.join(cluster.keywords[:6])}",
+            f"Keywords: {', '.join(cluster.keywords[:6])}",
             "",
-            "Signaux:",
+            "Signals:",
         ])
         for signal in cluster.signals[:5]:
             lines.append(f"- [{signal.title}]({signal.url}) - {signal.source}, score {signal.score}")
-        lines.extend(["", "Idées à explorer:", ""])
+        lines.extend(["", "Ideas to explore:", ""])
         for idea in ideas_by_topic.get(cluster.topic, []):
             lines.extend([
                 f"#### {idea.title}",
                 "",
-                f"Problème: {idea.problem}",
-                f"Cible: {idea.audience}",
-                f"Pourquoi maintenant: {idea.why_now}",
-                f"MVP 7 jours: {idea.mvp}",
-                f"Difficulté: {idea.difficulty}",
-                f"Potentiel business: {idea.business_potential}",
-                f"Risques: {idea.risks}",
-                f"Différenciation: {idea.differentiator}",
+                f"Problem: {idea.problem}",
+                f"Audience: {idea.audience}",
+                f"Why now: {idea.why_now}",
+                f"7-day MVP: {idea.mvp}",
+                f"Difficulty: {idea.difficulty}",
+                f"Business potential: {idea.business_potential}",
+                f"Risks: {idea.risks}",
+                f"Differentiator: {idea.differentiator}",
                 "",
             ])
     if not clusters:
         lines.extend([
-            "Aucun signal récent n'a été trouvé. Vérifie la connectivité réseau ou élargis les sources.",
+            "No recent signal was found. Check network connectivity or broaden the configured sources.",
             "",
         ])
     return "\n".join(lines)

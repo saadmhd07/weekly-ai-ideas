@@ -1,32 +1,32 @@
 # Contributing
 
-## Objectif Du Projet
+## Project Goal
 
-Le projet doit rester simple, local-first et utile pour générer une newsletter hebdomadaire courte d'idées GenAI buildables.
+The project should stay simple, local-first, and useful for generating a short weekly newsletter of buildable GenAI ideas.
 
-Priorités produit:
+Product priorities:
 
-- idées synthétiques et actionnables
-- sources faciles à maintenir
-- dépendances minimales
-- exécution locale ou cron simple
-- pas de plateforme lourde tant que ce n'est pas nécessaire
+- concise and actionable ideas
+- sources that are easy to maintain
+- minimal dependencies
+- local execution or simple cron automation
+- no heavy platform until it is clearly needed
 
-## Setup Local
+## Local Setup
 
 ```bash
 cp .env.example .env
 python3 -m compileall genai_newsletter
 ```
 
-Pour générer une ideabox:
+Generate an ideabox:
 
 ```bash
 python3 -m genai_newsletter.cli collect --limit 80
 python3 -m genai_newsletter.cli ideabox --days 7
 ```
 
-Pour tester l'email:
+Test email delivery:
 
 ```bash
 python3 -m genai_newsletter.cli send
@@ -36,42 +36,42 @@ python3 -m genai_newsletter.cli send
 
 ```text
 genai_newsletter/
-  collectors/   sources de signaux
-  cli.py        commandes CLI
-  config.py     configuration JSON
-  emailer.py    rendu/envoi email SMTP
-  env.py        chargement .env
-  ideabox.py    prompt, schéma OpenAI, rendu Markdown court
-  pipeline.py   enrichissement, scoring, clustering
-  storage.py    SQLite signals
+  collectors/   signal sources
+  cli.py        CLI commands
+  config.py     JSON configuration
+  emailer.py    SMTP email rendering and delivery
+  env.py        .env loader
+  ideabox.py    OpenAI prompt, schema, and short Markdown rendering
+  pipeline.py   enrichment, scoring, clustering
+  storage.py    SQLite signal storage
 ```
 
-## Ajouter Une Source
+## Add A Source
 
-1. Créer un collecteur dans `genai_newsletter/collectors/`.
-2. Retourner des objets `Signal` normalisés.
-3. Ajouter le collecteur dans `build_collectors()` dans `cli.py`.
-4. Vérifier que la source échoue proprement sans casser les autres.
-5. Tester avec une petite limite:
+1. Create a collector in `genai_newsletter/collectors/`.
+2. Return normalized `Signal` objects.
+3. Register the collector in `build_collectors()` in `cli.py`.
+4. Make sure source failures do not break other sources.
+5. Test with a small limit:
 
 ```bash
 python3 -m genai_newsletter.cli collect --limit 5
 ```
 
-## Modifier Le Prompt Ou Le Format
+## Change The Prompt Or Format
 
-Le format principal est dans `genai_newsletter/ideabox.py`:
+The main format lives in `genai_newsletter/ideabox.py`:
 
-- `IDEABOX_SCHEMA`: contrat JSON attendu d'OpenAI
-- `build_instructions()`: comportement éditorial
-- `build_wide_input()`: compression des signaux
-- `render_ideabox()`: Markdown final
+- `IDEABOX_SCHEMA`: expected OpenAI JSON contract
+- `build_instructions()`: editorial behavior
+- `build_wide_input()`: signal compression
+- `render_ideabox()`: final Markdown
 
-Garder la sortie courte. Si une section n'est pas lue en moins de 3 minutes, elle est probablement trop longue.
+Keep the output short. If a section cannot be read in under 3 minutes, it is probably too long.
 
 ## Validation
 
-Avant de considérer un changement terminé:
+Before considering a change complete:
 
 ```bash
 python3 -m compileall genai_newsletter
@@ -79,23 +79,23 @@ python3 -m genai_newsletter.cli --help
 python3 -m genai_newsletter.cli ideabox --help
 ```
 
-Si le changement touche les collecteurs ou l'email, tester la commande concernée.
+If the change touches collectors or email, test the relevant command.
 
-## Données Et Secrets
+## Data And Secrets
 
-Ne jamais versionner:
+Never commit:
 
 - `.env`
 - `data/*.db`
 - `output/*.md`
-- clés API ou mots de passe SMTP
+- API keys or SMTP passwords
 
-Ces fichiers sont ignorés par `.gitignore`.
+These files are ignored by `.gitignore`.
 
 ## Style
 
-- Python standard library first.
-- Pas de dépendance ajoutée sans raison claire.
-- Erreurs réseau tolérées par source.
-- Logs courts mais utiles.
-- Préférer des fonctions simples et testables.
+- Prefer the Python standard library.
+- Do not add dependencies without a clear reason.
+- Network failures should be isolated per source.
+- Logs should be short but useful.
+- Prefer simple, testable functions.
