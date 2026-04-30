@@ -31,6 +31,11 @@ class AppConfig:
         "https://openai.com/news/rss.xml",
         "https://www.anthropic.com/news/rss.xml",
         "https://huggingface.co/blog/feed.xml",
+        "https://www.reddit.com/r/LocalLLaMA/.rss",
+        "https://www.reddit.com/r/OpenAI/.rss",
+        "https://www.reddit.com/r/MachineLearning/.rss",
+        "https://www.reddit.com/r/SaaS/.rss",
+        "https://www.reddit.com/r/Entrepreneur/.rss",
     ])
 
 

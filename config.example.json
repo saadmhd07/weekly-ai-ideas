@@ -2,8 +2,16 @@
   "database_path": "data/newsletter.db",
   "output_dir": "output",
   "keywords": [
-    "genai", "generative ai", "llm", "ai agent", "rag", "multimodal",
-    "local llm", "synthetic data", "ai coding", "voice agent"
+    "genai",
+    "generative ai",
+    "llm",
+    "ai agent",
+    "rag",
+    "multimodal",
+    "local llm",
+    "synthetic data",
+    "ai coding",
+    "voice agent"
   ],
   "source_weights": {
     "hackernews": 1.1,
@@ -12,10 +20,21 @@
     "reddit": 1.0,
     "rss": 1.0
   },
-  "reddit_subreddits": ["LocalLLaMA", "MachineLearning", "OpenAI", "SaaS", "Entrepreneur"],
+  "reddit_subreddits": [
+    "LocalLLaMA",
+    "MachineLearning",
+    "OpenAI",
+    "SaaS",
+    "Entrepreneur"
+  ],
   "rss_feeds": [
     "https://openai.com/news/rss.xml",
     "https://www.anthropic.com/news/rss.xml",
-    "https://huggingface.co/blog/feed.xml"
+    "https://huggingface.co/blog/feed.xml",
+    "https://www.reddit.com/r/LocalLLaMA/.rss",
+    "https://www.reddit.com/r/OpenAI/.rss",
+    "https://www.reddit.com/r/MachineLearning/.rss",
+    "https://www.reddit.com/r/SaaS/.rss",
+    "https://www.reddit.com/r/Entrepreneur/.rss"
   ]
 }

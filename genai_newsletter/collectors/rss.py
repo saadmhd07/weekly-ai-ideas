@@ -46,13 +46,16 @@ class RssCollector(Collector):
 
     def _from_atom_entry(self, entry: ET.Element, feed: str) -> Signal:
         ns = {"a": "http://www.w3.org/2005/Atom"}
-        link_node = entry.find("a:link", ns)
-        link = link_node.attrib.get("href", "") if link_node is not None else ""
+        link = ""
+        for link_node in entry.findall("a:link", ns):
+            rel = link_node.attrib.get("rel", "alternate")
+            if rel == "alternate" or not link:
+                link = link_node.attrib.get("href", link)
         return Signal(
             source=self.name,
             title=entry.findtext("a:title", default="", namespaces=ns).strip(),
             url=link,
-            text=entry.findtext("a:summary", default="", namespaces=ns).strip(),
+            text=(entry.findtext("a:summary", default="", namespaces=ns) or entry.findtext("a:content", default="", namespaces=ns)).strip(),
             published_at=parse_datetime(entry.findtext("a:updated", default="", namespaces=ns)),
             metadata={"feed": feed},
         )
