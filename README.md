@@ -1,6 +1,6 @@
 # GenAI Newsletter / Idea Box
 
-Collects public GenAI signals, compresses them into inspiration cards, and generates a short weekly side-project newsletter with OpenAI. The workflow can also email the result once per week.
+Collects public GenAI signals, compresses them into inspiration cards, and generates a short twice-weekly side-project newsletter with OpenAI. The workflow can also email the result twice per week.
 
 ## Output
 
@@ -61,7 +61,7 @@ Email the latest `ideabox`:
 python3 -m genai_newsletter.cli send
 ```
 
-Full weekly workflow: collect, generate, email:
+Full scheduled workflow: collect, generate, email:
 
 ```bash
 python3 -m genai_newsletter.cli weekly
@@ -141,10 +141,10 @@ On Linux:
 crontab -e
 ```
 
-Example: every Monday at 08:00:
+Example: every Monday and Thursday at 08:00:
 
 ```cron
-0 8 * * 1 cd /home/saad/projects/newsletter && /usr/bin/python3 -m genai_newsletter.cli weekly >> /home/saad/projects/newsletter/output/weekly.log 2>&1
+0 8 * * 1,4 cd /home/saad/projects/newsletter && /usr/bin/python3 -m genai_newsletter.cli weekly >> /home/saad/projects/newsletter/output/weekly.log 2>&1
 ```
 
 No deployment is required if your machine is on. If you want it to run while your computer is off, use a VPS, GitHub Actions with secrets, a NAS, or another always-on machine.
@@ -173,7 +173,7 @@ The repository includes a ready-to-use workflow:
 .github/workflows/weekly-newsletter.yml
 ```
 
-It runs `python -m genai_newsletter.cli weekly --limit 80 --days 7` every Monday at 08:00 UTC and can also be triggered manually from the GitHub Actions tab.
+It runs `python -m genai_newsletter.cli weekly --limit 80 --days 7` every Monday and Thursday at 08:00 UTC and can also be triggered manually from the GitHub Actions tab.
 
 Configure this in GitHub:
 
@@ -198,4 +198,4 @@ SMTP_PORT=587
 SMTP_TLS=true
 ```
 
-The GitHub runner is ephemeral: the SQLite database created during a run is not persisted. For this weekly workflow, that is fine because the command collects, generates, and emails within the same run.
+The GitHub runner is ephemeral: the SQLite database created during a run is not persisted. For this scheduled workflow, that is fine because the command collects, generates, and emails within the same run.
