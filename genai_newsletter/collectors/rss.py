@@ -36,7 +36,7 @@ class RssCollector(Collector):
         link = item.findtext("link", default="").strip()
         description = item.findtext("description", default="").strip()
         return Signal(
-            source=self.name,
+            source=self._source_for_feed(feed),
             title=title,
             url=link,
             text=description,
@@ -52,10 +52,13 @@ class RssCollector(Collector):
             if rel == "alternate" or not link:
                 link = link_node.attrib.get("href", link)
         return Signal(
-            source=self.name,
+            source=self._source_for_feed(feed),
             title=entry.findtext("a:title", default="", namespaces=ns).strip(),
             url=link,
             text=(entry.findtext("a:summary", default="", namespaces=ns) or entry.findtext("a:content", default="", namespaces=ns)).strip(),
             published_at=parse_datetime(entry.findtext("a:updated", default="", namespaces=ns)),
             metadata={"feed": feed},
         )
+
+    def _source_for_feed(self, feed: str) -> str:
+        return "reddit_rss" if "reddit.com/r/" in feed else self.name

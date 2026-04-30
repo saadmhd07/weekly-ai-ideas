@@ -23,6 +23,7 @@ class AppConfig:
         "arxiv": 1.0,
         "github": 1.25,
         "reddit": 1.0,
+        "reddit_rss": 1.0,
         "rss": 1.0,
     })
     enable_reddit_json: bool = False
@@ -48,8 +49,7 @@ def load_config(path: str | Path | None = None) -> AppConfig:
     if not path:
         config = AppConfig()
         apply_env_overrides(config)
-        apply_env_overrides(config)
-    return config
+        return config
 
     payload: dict[str, Any] = json.loads(Path(path).read_text(encoding="utf-8"))
     config = AppConfig()

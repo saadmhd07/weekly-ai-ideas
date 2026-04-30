@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -54,13 +55,22 @@ def collect(config: AppConfig, limit: int) -> CollectResult:
                 signals = enrich_signals(signals, config.keywords, config.source_weights)
                 fetched += len(signals)
                 inserted += store.upsert_many(signals)
-                print(f"{collector.name}: {len(signals)} signals, {inserted} new cumulative")
+                breakdown = source_breakdown(signals)
+                detail = f" ({breakdown})" if breakdown else ""
+                print(f"{collector.name}: {len(signals)} signals{detail}, {inserted} new cumulative")
             except Exception as exc:
                 errors.append(f"{collector.name}: {exc}")
                 print(f"{collector.name}: error - {exc}", file=sys.stderr)
     finally:
         store.close()
     return CollectResult(fetched=fetched, inserted=inserted, errors=errors)
+
+
+def source_breakdown(signals) -> str:
+    counts = Counter(signal.source for signal in signals)
+    if len(counts) <= 1:
+        return ""
+    return ", ".join(f"{source}={count}" for source, count in sorted(counts.items()))
 
 
 def newsletter(config: AppConfig, days: int, use_openai: bool) -> str:

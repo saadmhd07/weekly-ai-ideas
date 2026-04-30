@@ -350,7 +350,40 @@ def render_ideabox(payload: dict[str, Any], signals: list[Signal], model: str, u
     for item in payload["skip"]:
         lines.extend([f"- {item['idea']}: {item['why_skip']}"])
     lines.extend(["", "## Signaux Clés", ""])
-    for signal in signals[:8]:
-        lines.append(f"- [{signal.title}]({signal.url}) - {signal.source}")
+    for signal in key_signals(signals, limit=8):
+        lines.append(f"- [{signal.title}]({signal.url}) - {display_source(signal)}")
     lines.append("")
     return "\n".join(lines)
+
+
+def key_signals(signals: list[Signal], limit: int = 8) -> list[Signal]:
+    selected: list[Signal] = []
+    seen_sources: set[str] = set()
+    seen_urls: set[str] = set()
+    for signal in signals:
+        if signal.url in seen_urls:
+            continue
+        if signal.source not in seen_sources:
+            selected.append(signal)
+            seen_sources.add(signal.source)
+            seen_urls.add(signal.url)
+        if len(selected) >= limit:
+            return selected
+    for signal in signals:
+        if signal.url in seen_urls:
+            continue
+        selected.append(signal)
+        seen_urls.add(signal.url)
+        if len(selected) >= limit:
+            return selected
+    return selected
+
+
+def display_source(signal: Signal) -> str:
+    if signal.source == "reddit_rss":
+        feed = signal.metadata.get("feed", "")
+        if "/r/" in feed:
+            subreddit = feed.split("/r/", 1)[1].split("/", 1)[0]
+            return f"reddit/rss:{subreddit}"
+        return "reddit/rss"
+    return signal.source
