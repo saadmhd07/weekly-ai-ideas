@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,7 @@ class AppConfig:
         "reddit": 1.0,
         "rss": 1.0,
     })
+    enable_reddit_json: bool = False
     reddit_subreddits: list[str] = field(default_factory=lambda: [
         "LocalLLaMA", "MachineLearning", "OpenAI", "SaaS", "Entrepreneur",
     ])
@@ -44,7 +46,10 @@ def load_config(path: str | Path | None = None) -> AppConfig:
         default = Path("config.json")
         path = default if default.exists() else None
     if not path:
-        return AppConfig()
+        config = AppConfig()
+        apply_env_overrides(config)
+        apply_env_overrides(config)
+    return config
 
     payload: dict[str, Any] = json.loads(Path(path).read_text(encoding="utf-8"))
     config = AppConfig()
@@ -53,4 +58,11 @@ def load_config(path: str | Path | None = None) -> AppConfig:
             setattr(config, key, Path(value))
         elif hasattr(config, key):
             setattr(config, key, value)
+    apply_env_overrides(config)
     return config
+
+
+def apply_env_overrides(config: AppConfig) -> None:
+    value = os.getenv("ENABLE_REDDIT_JSON")
+    if value is not None:
+        config.enable_reddit_json = value.lower() in {"1", "true", "yes", "on"}

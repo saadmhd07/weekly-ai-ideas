@@ -30,13 +30,15 @@ class CollectResult:
 
 def build_collectors(config: AppConfig) -> list:
     client = HttpClient()
-    return [
+    collectors = [
         HackerNewsCollector(client, config.keywords),
         ArxivCollector(client, config.keywords),
         GitHubCollector(client),
-        RedditCollector(client, config.reddit_subreddits),
-        RssCollector(client, config.rss_feeds),
     ]
+    if config.enable_reddit_json:
+        collectors.append(RedditCollector(client, config.reddit_subreddits))
+    collectors.append(RssCollector(client, config.rss_feeds))
+    return collectors
 
 
 def collect(config: AppConfig, limit: int) -> CollectResult:

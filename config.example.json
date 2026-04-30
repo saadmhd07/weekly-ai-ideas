@@ -36,5 +36,6 @@
     "https://www.reddit.com/r/MachineLearning/.rss",
     "https://www.reddit.com/r/SaaS/.rss",
     "https://www.reddit.com/r/Entrepreneur/.rss"
-  ]
+  ],
+  "enable_reddit_json": false
 }

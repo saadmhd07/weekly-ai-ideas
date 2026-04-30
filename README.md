@@ -199,3 +199,21 @@ SMTP_TLS=true
 ```
 
 The GitHub runner is ephemeral: the SQLite database created during a run is not persisted. For this scheduled workflow, that is fine because the command collects, generates, and emails within the same run.
+
+## Reddit
+
+Reddit is currently consumed through RSS feeds in `rss_feeds`:
+
+- `r/LocalLLaMA`
+- `r/OpenAI`
+- `r/MachineLearning`
+- `r/SaaS`
+- `r/Entrepreneur`
+
+The older Reddit JSON collector is disabled by default because GitHub Actions runners are often blocked by Reddit with HTTP 403.
+
+To re-enable it locally:
+
+```bash
+ENABLE_REDDIT_JSON=true python3 -m genai_newsletter.cli collect --limit 30
+```
